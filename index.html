@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>Turno Seguro — Check-in pre-turno</title>
+<style>
+  :root{
+    --navy:#00008F; --deep:#00004D; --terra:#DD7358; --lav:#EEEEFA; --mid:#C9C9EA;
+    --ink:#1A1A3A; --gray:#5B5B73; --ok:#1B7A4B; --okbg:#E4F4EB; --tint:#FBE6DF;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--lav);line-height:1.4}
+  header{background:var(--navy);color:#fff;padding:18px 16px 16px;padding-top:max(18px,env(safe-area-inset-top))}
+  header .brand{font-size:12px;letter-spacing:.08em;font-weight:700;opacity:.85}
+  header h1{margin:4px 0 2px;font-size:22px;line-height:1.2}
+  header p{margin:0;font-size:14px;opacity:.9}
+  main{max-width:560px;margin:0 auto;padding:16px 16px 40px}
+  .card{background:#fff;border:1px solid var(--mid);border-radius:14px;padding:16px;margin-bottom:14px}
+  label.f{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
+  input[type=text],textarea{width:100%;font:inherit;font-size:16px;padding:12px;border:1px solid var(--mid);border-radius:10px;background:#fff;color:var(--ink)}
+  input[type=text]:focus,textarea:focus,button:focus-visible{outline:3px solid var(--terra);outline-offset:1px}
+  .row{margin-bottom:14px}
+  .row:last-child{margin-bottom:0}
+  .q{margin-bottom:18px}
+  .q:last-child{margin-bottom:0}
+  .q .t{font-weight:600;font-size:16px;margin-bottom:8px}
+  .q .n{display:inline-block;background:var(--navy);color:#fff;border-radius:50%;width:24px;height:24px;line-height:24px;text-align:center;font-size:13px;margin-right:8px}
+  .seg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .seg input{position:absolute;opacity:0;pointer-events:none}
+  .seg label{display:block;text-align:center;padding:14px 8px;border:2px solid var(--mid);border-radius:12px;font-weight:700;font-size:17px;cursor:pointer;background:#fff;color:var(--gray);user-select:none}
+  .seg input:focus-visible + label{outline:3px solid var(--terra);outline-offset:1px}
+  .seg input.si:checked + label{background:var(--navy);border-color:var(--navy);color:#fff}
+  .seg input.no:checked + label{background:var(--terra);border-color:var(--terra);color:#fff}
+  .hint{font-size:13px;color:var(--gray);margin-top:6px}
+  .consent{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--gray)}
+  .consent input{margin-top:3px;width:20px;height:20px;flex:none}
+  .btn{width:100%;font:inherit;font-weight:700;font-size:17px;padding:16px;border:0;border-radius:12px;background:var(--navy);color:#fff;cursor:pointer}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn.alt{background:#fff;color:var(--navy);border:2px solid var(--navy);margin-top:10px}
+  .err{color:#B3261E;font-size:14px;font-weight:600;margin:10px 0 0;min-height:1em}
+  .res{border-radius:14px;padding:18px;margin-bottom:14px}
+  .res h2{margin:0 0 6px;font-size:20px}
+  .res.red{background:var(--tint);border:2px solid var(--terra)}
+  .res.red h2{color:#A33D24}
+  .res.green{background:var(--okbg);border:2px solid var(--ok)}
+  .res.green h2{color:var(--ok)}
+  pre{white-space:pre-wrap;word-break:break-word;font:inherit;font-size:14px;background:#fff;border:1px solid var(--mid);border-radius:10px;padding:12px;margin:12px 0 0}
+  .small{font-size:12px;color:var(--gray);text-align:center;margin-top:8px}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">AXA PREVENTIVA · TURNO SEGURO</div>
+  <h1>Check-in pre-turno</h1>
+  <p>Responda antes de iniciar su tarea. Toma menos de un minuto.</p>
+</header>
+
+<main>
+  <form id="form" novalidate>
+    <section class="card" aria-labelledby="h-datos">
+      <div class="row">
+        <label class="f" for="nombre">Nombre completo</label>
+        <input type="text" id="nombre" autocomplete="name" maxlength="80" required>
+      </div>
+      <div class="row">
+        <label class="f" for="empresa">Empresa</label>
+        <input type="text" id="empresa" maxlength="80" required>
+      </div>
+      <div class="row">
+        <label class="f" for="sede">Sede o centro de trabajo</label>
+        <input type="text" id="sede" maxlength="80" required>
+      </div>
+      <div class="row">
+        <label class="f" for="tarea">Tarea que va a realizar</label>
+        <input type="text" id="tarea" maxlength="120" placeholder="Ej.: trabajo en alturas, soldadura, conducción" required>
+      </div>
+    </section>
+
+    <section class="card" aria-label="Preguntas del check-in">
+      <div class="q" data-q="epp">
+        <div class="t"><span class="n">1</span>¿Tiene el EPP completo y en buen estado?</div>
+        <div class="seg">
+          <input type="radio" class="si" name="epp" id="epp-si" value="SI"><label for="epp-si">Sí</label>
+          <input type="radio" class="no" name="epp" id="epp-no" value="NO"><label for="epp-no">No</label>
+        </div>
+      </div>
+      <div class="q" data-q="tarea">
+        <div class="t"><span class="n">2</span>¿Las condiciones de la tarea son seguras?</div>
+        <div class="seg">
+          <input type="radio" class="si" name="cond" id="cond-si" value="SI"><label for="cond-si">Sí</label>
+          <input type="radio" class="no" name="cond" id="cond-no" value="NO"><label for="cond-no">No</label>
+        </div>
+        <div class="hint">Área despejada, herramientas en buen estado, permisos y autorizaciones al día.</div>
+      </div>
+      <div class="q" data-q="desc">
+        <div class="t"><span class="n">3</span>¿Durmió y descansó lo suficiente para el turno?</div>
+        <div class="seg">
+          <input type="radio" class="si" name="desc" id="desc-si" value="SI"><label for="desc-si">Sí</label>
+          <input type="radio" class="no" name="desc" id="desc-no" value="NO"><label for="desc-no">No</label>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="obsCard" hidden>
+      <label class="f" for="obs">¿Qué condición o situación insegura observa?</label>
+      <textarea id="obs" rows="3" maxlength="300" placeholder="Describa brevemente (opcional)"></textarea>
+    </section>
+
+    <section class="card">
+      <label class="consent">
+        <input type="checkbox" id="consent">
+        <span>Autorizo el tratamiento de mis datos personales para gestionar este check-in de Seguridad y Salud en el Trabajo (Ley 1581 de 2012). La información se envía únicamente al supervisor por WhatsApp; esta página no la almacena.</span>
+      </label>
+    </section>
+
+    <button type="submit" class="btn" id="send">Enviar al supervisor</button>
+    <p class="err" id="err" role="alert"></p>
+  </form>
+
+  <section id="result" hidden aria-live="polite">
+    <div class="res" id="resBox">
+      <h2 id="resTitle"></h2>
+      <div id="resText"></div>
+    </div>
+    <a class="btn" id="waLink" href="#" style="display:block;text-align:center;text-decoration:none" rel="noopener">Abrir WhatsApp y enviar al supervisor</a>
+    <button type="button" class="btn alt" id="copy">Copiar mensaje</button>
+    <button type="button" class="btn alt" id="again">Hacer otro check-in</button>
+    <pre id="msgPreview" aria-label="Mensaje que se enviará"></pre>
+    <p class="small">El envío se completa cuando usted presiona “Enviar” dentro de WhatsApp.</p>
+  </section>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  var params = new URLSearchParams(location.search);
+  // Número del supervisor: por defecto el configurado; se puede cambiar por sede con ?sup=57XXXXXXXXXX
+  var DEFAULT_SUP = '573124585721';
+  var sup = (params.get('sup') || DEFAULT_SUP).replace(/\D/g, '');
+  if (sup.length === 10) sup = '57' + sup;
+  if (sup.length < 11 || sup.length > 15) sup = DEFAULT_SUP;
+
+  var $ = function(id){ return document.getElementById(id); };
+  if (params.get('empresa')) $('empresa').value = params.get('empresa').slice(0, 80);
+  if (params.get('sede'))    $('sede').value    = params.get('sede').slice(0, 80);
+
+  function val(name){ var el = document.querySelector('input[name="'+name+'"]:checked'); return el ? el.value : ''; }
+  function updateObs(){
+    var anyNo = ['epp','cond','desc'].some(function(n){ return val(n) === 'NO'; });
+    $('obsCard').hidden = !anyNo;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.seg input'), function(i){ i.addEventListener('change', updateObs); });
+
+  function two(n){ return (n < 10 ? '0' : '') + n; }
+  function stamp(){
+    var d = new Date();
+    return two(d.getDate())+'/'+two(d.getMonth()+1)+'/'+d.getFullYear()+' '+two(d.getHours())+':'+two(d.getMinutes());
+  }
+  function sn(v){ return v === 'SI' ? 'SÍ' : 'NO'; }
+
+  function buildMessage(d, red){
+    var L = [];
+    L.push('TURNO SEGURO · Check-in pre-turno');
+    L.push('Fecha y hora: ' + stamp());
+    L.push('Trabajador: ' + d.nombre);
+    L.push('Empresa: ' + d.empresa);
+    L.push('Sede: ' + d.sede);
+    L.push('Tarea: ' + d.tarea);
+    L.push('1. EPP completo y en buen estado: ' + sn(d.epp));
+    L.push('2. Condiciones de la tarea seguras: ' + sn(d.cond));
+    L.push('3. Descansó lo suficiente: ' + sn(d.desc));
+    if (d.obs) L.push('Observación: ' + d.obs);
+    L.push(red ? 'ESTADO: BANDERA ROJA. El trabajador NO inicia la tarea hasta su autorización.' : 'ESTADO: Sin banderas rojas.');
+    return L.join('\n');
+  }
+
+  $('form').addEventListener('submit', function(e){
+    e.preventDefault();
+    var d = {
+      nombre: $('nombre').value.trim(), empresa: $('empresa').value.trim(),
+      sede: $('sede').value.trim(), tarea: $('tarea').value.trim(),
+      epp: val('epp'), cond: val('cond'), desc: val('desc'),
+      obs: $('obs').value.trim()
+    };
+    var err = '';
+    if (!d.nombre || !d.empresa || !d.sede || !d.tarea) err = 'Complete nombre, empresa, sede y tarea.';
+    else if (!d.epp || !d.cond || !d.desc) err = 'Responda las tres preguntas.';
+    else if (!$('consent').checked) err = 'Debe autorizar el tratamiento de datos para enviar.';
+    $('err').textContent = err;
+    if (err) return;
+
+    var red = d.epp === 'NO' || d.cond === 'NO' || d.desc === 'NO';
+    if (!red) d.obs = '';
+    var msg = buildMessage(d, red);
+    var url = 'https://wa.me/' + sup + '?text=' + encodeURIComponent(msg);
+
+    var box = $('resBox');
+    box.className = 'res ' + (red ? 'red' : 'green');
+    $('resTitle').textContent = red ? 'Bandera roja: no inicie la tarea' : 'Sin banderas rojas';
+    $('resText').textContent = red
+      ? 'Detenga la actividad y espere la autorización del supervisor. Envíele este reporte ahora para que lo atienda antes de que usted se exponga al riesgo.'
+      : 'Envíe el check-in al supervisor para dejar el registro del turno. Buen turno y trabaje seguro.';
+    $('msgPreview').textContent = msg;
+    $('waLink').href = url;
+    $('waLink').dataset.msg = msg;
+    $('form').hidden = true;
+    $('result').hidden = false;
+    window.scrollTo(0, 0);
+  });
+
+  $('copy').addEventListener('click', function(){
+    var t = $('waLink').dataset.msg || '';
+    var b = $('copy');
+    function done(ok){ b.textContent = ok ? 'Mensaje copiado' : 'No se pudo copiar'; setTimeout(function(){ b.textContent = 'Copiar mensaje'; }, 2000); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ done(true); }, function(){ done(false); });
+    else done(false);
+  });
+
+  $('again').addEventListener('click', function(){
+    ['epp','cond','desc'].forEach(function(n){ var el = document.querySelector('input[name="'+n+'"]:checked'); if (el) el.checked = false; });
+    $('obs').value = ''; $('tarea').value = ''; $('consent').checked = false; $('err').textContent = '';
+    updateObs();
+    $('result').hidden = true; $('form').hidden = false;
+    window.scrollTo(0, 0);
+  });
+})();
+</script>
+</body>
+</html>
